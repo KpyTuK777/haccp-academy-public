@@ -31,3 +31,10 @@ console.log(count+' checks passed; '+ctx.window.COURSE.sources.length+' source p
 check('Public source labels are inert','source(20).includes("Оригінал · с. 20")&&!source(20).includes("button")&&!source(20).includes("href")&&!nav.some(n=>n[0]==="sources")');
 check('Legacy sources route cannot reveal photos','location.hash="#sources";render();!main.innerHTML.includes("<img")&&main.innerHTML.includes("Сторінку не знайдено")');
 assert.ok(!fs.readFileSync(path.join(root,'app.js'),'utf8').includes('data-source'));
+
+check('Every new question has four distinct options','C.questions.length===71&&C.questions.every(q=>q.answers.length===4&&new Set(q.answers).size===4&&q.id.endsWith("-v2"))');
+check('New exams never draw legacy questions','selectExam().every(q=>q.id.endsWith("-v2")&&q.answers.length===4)');
+check('Legacy result still uses original answer text','qById("q62").answers.length===3&&qById("q62").answers[0]==="Не вище −18 °C"&&qById("q62-v2").answers[0]==="−18 °C"');
+check('Legacy mistakes retry using new four-choice questions','state.active=null;state.mistakes={q62:{count:1,lastAnswer:1,resolved:false}};start("review");state.active.items.length===1&&state.active.items[0].id==="q62-v2"&&state.active.items[0].order.length===4');
+check('Correct new response resolves legacy mistake','state.active.items[0].answer=0;finish();unresolved().length===0&&state.mistakes.q62.resolved');
+check('Wrong new response supersedes old error without duplicate review','state.mistakes={q62:{count:1,lastAnswer:1,resolved:false}};start("review");state.active.items[0].answer=1;finish();unresolved().length===1&&unresolved()[0]==="q62-v2"');
