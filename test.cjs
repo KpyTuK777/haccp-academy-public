@@ -4,7 +4,7 @@ const root=__dirname, nodes=new Map(), listeners={};
 function node(){return {innerHTML:'',textContent:'',style:{},classList:{toggle(){}},insertAdjacentHTML(){},focus(){}};}
 const storage=new Map();
 const ctx={console,Math,Date,JSON,Number,Array,Object,String,Set,Map,RegExp,Error,setTimeout:()=>0,clearTimeout(){},confirm:()=>true,location:{hash:''},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},document:{querySelector:s=>{if(!nodes.has(s))nodes.set(s,node());return nodes.get(s)},body:node(),addEventListener:(type,fn)=>listeners[type]=fn},window:{addEventListener(){}},URL,Blob};
-vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(root,'data.js'),'utf8'),ctx);vm.runInContext(fs.readFileSync(path.join(root,'app.js'),'utf8'),ctx);
+vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(root,'data.js'),'utf8'),ctx);vm.runInContext(fs.readFileSync(path.join(root,'hygiene.js'),'utf8'),ctx);vm.runInContext(fs.readFileSync(path.join(root,'app.js'),'utf8'),ctx);
 let count=0;function check(name,code){assert.equal(vm.runInContext(code,ctx),true,name);console.log('PASS '+name);count++;}
 check('Every source and answer is valid','C.questions.every(q=>C.sources.some(s=>s.page===q.page)&&q.answers.length>=3&&new Set(q.answers).size===q.answers.length&&q.correct>=0&&q.correct<q.answers.length)&&new Set(C.questions.map(q=>q.id)).size===C.questions.length');
 check('Every module has verified content and questions','[1,2,3,4,5,6].every(n=>C.facts.some(f=>f[0]===n)&&C.questions.filter(q=>q.module===n).length>=5)');
